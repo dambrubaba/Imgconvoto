@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Image Converter</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Image Converter</h1>
+      <form action="/convert" method="post" enctype="multipart/form-data">
+        <input type="file" name="image" required />
+        <select name="format">
+          <option value="jpeg">JPEG</option>
+          <option value="png">PNG</option>
+          <option value="webp">WebP</option>
+        </select>
+        <button type="submit">Convert</button>
+      </form>
+      <footer>&copy; 2024 Image Converter. All rights reserved.</footer>
+    </div>
+  </body>
+</html>
