@@ -4,8 +4,10 @@
   "description": "A simple image converter web app",
   "main": "app.js",
   "scripts": {
-    "dev": "node app.js"
-  },
+      "start": "node app.js",
+      "build": "echo 'Skipping build step'"
+    }
+  
   "dependencies": {
     "archiver": "^7.0.1",
     "ejs": "^3.1.6",
