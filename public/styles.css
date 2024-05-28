@@ -1,10 +1,3 @@
-/* Reset some default styles */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
 body {
   font-family: 'Roboto', sans-serif;
   display: flex;
@@ -12,62 +5,98 @@ body {
   align-items: center;
   height: 100vh;
   margin: 0;
-  background: linear-gradient(135deg, #f06, #f9a);
-  color: #333;
+  background: linear-gradient(to right, #4facfe, #00f2fe);
 }
 
 .container {
-  text-align: center;
   background: white;
-  padding: 2em;
-  border-radius: 16px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  text-align: center;
   max-width: 400px;
-  width: 90%;
+  width: 100%;
 }
 
 h1 {
-  margin-bottom: 1em;
-  font-size: 2em;
+  margin-bottom: 20px;
+  font-size: 24px;
   color: #333;
 }
 
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1em;
+.form-group {
+  margin-bottom: 20px;
 }
 
-input[type="file"] {
-  padding: 0.5em;
-  border: 1px solid #ccc;
-  border-radius: 8px;
+.form-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
 }
 
 select {
-  padding: 0.5em;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 1em;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
 }
 
-button {
-  padding: 0.75em;
-  border: none;
-  border-radius: 8px;
-  background-color: #007bff;
-  color: white;
-  font-size: 1em;
+#drop-area {
+  border: 2px dashed #4facfe;
+  padding: 30px;
+  border-radius: 10px;
   cursor: pointer;
+  transition: background-color 0.3s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 150px;
+}
+
+#drop-area.dragging {
+  background-color: #e6f7ff;
+}
+
+#drop-area p {
+  margin: 0;
+  font-size: 16px;
+  color: #888;
+}
+
+#drop-area span {
+  color: #4facfe;
+  font-weight: 500;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+input[type="file"] {
+  display: none;
+}
+
+.btn {
+  background-color: #4facfe;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 5px;
   transition: background-color 0.3s;
 }
 
-button:hover {
-  background-color: #0056b3;
+.btn:hover {
+  background-color: #00f2fe;
 }
 
-footer {
-  margin-top: 1em;
-  font-size: 0.9em;
-  color: #555;
+.loading {
+  margin-top: 10px;
+  font-size: 16px;
+  color: #888;
+  display: none;
+}
+
+#message {
+  margin-top: 20px;
+  font-size: 18px;
 }
