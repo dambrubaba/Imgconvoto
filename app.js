@@ -31,7 +31,7 @@ const fileFilter = (req, file, cb) => {
 
 // Set up multer with file filter
 const upload = multer({
-    dest: "uploads/",
+    dest: "/tmp/uploads/", // Use the /tmp directory for uploads
     fileFilter: fileFilter,
 });
 
