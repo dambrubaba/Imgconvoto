@@ -7,6 +7,10 @@ const path = require('path');
 
 const app = express();
 
+// Set up multer with memory storage
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage, fileFilter: fileFilter });
+
 // File filter for multer
 const fileFilter = (req, file, cb) => {
     const filetypes = /jpeg|jpg|png|gif|webp|heic|heif/;
@@ -27,11 +31,6 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
-const upload = multer({ 
-    dest: 'uploads/',
-    fileFilter: fileFilter
-});
-
 app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
 
@@ -41,36 +40,31 @@ app.get('/', (req, res) => {
 
 app.post('/convert', upload.single('image'), async (req, res) => {
     const format = req.body.format; // jpeg, png, webp, heic, etc.
-    const filePath = req.file.path;
+    const file = req.file;
     const outputFilePath = `uploads/output.${format}`;
 
     try {
-        const ext = path.extname(req.file.originalname).toLowerCase();
-        if (ext === '.heic' || ext === '.heif') {
-            const inputBuffer = fs.readFileSync(filePath);
-            const outputBuffer = await heicConvert({
+        if (!file) {
+            throw new Error('No file uploaded.');
+        }
+
+        const inputBuffer = file.buffer;
+        let outputBuffer;
+
+        if (file.mimetype === 'image/heic' || file.mimetype === 'image/heif') {
+            outputBuffer = await heicConvert({
                 buffer: inputBuffer,
                 format: format.toUpperCase() // Converting HEIC to the desired format
             });
-            fs.writeFileSync(outputFilePath, outputBuffer);
-        } else if (format === 'heic') {
-            const inputBuffer = fs.readFileSync(filePath);
-            const outputBuffer = await heicConvert({
-                buffer: inputBuffer,
-                format: 'HEIC' // Converting to HEIC
-            });
-            fs.writeFileSync(outputFilePath, outputBuffer);
         } else {
-            await sharp(filePath).toFormat(format).toFile(outputFilePath);
+            outputBuffer = await sharp(inputBuffer).toFormat(format).toBuffer();
         }
 
-        res.download(outputFilePath, (err) => {
-            if (err) {
-                console.error(err);
-            }
-            fs.unlinkSync(filePath); // Delete the uploaded file
-            fs.unlinkSync(outputFilePath); // Delete the output file
-        });
+        // At this point, outputBuffer contains the converted image
+        // You can now send this buffer back to the client, save it to a database, etc.
+        // For example, to send the image back to the client:
+        res.type(`image/${format}`);
+        res.send(outputBuffer);
     } catch (error) {
         console.error(error);
         res.status(500).send('Error processing image');

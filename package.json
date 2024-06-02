@@ -11,7 +11,7 @@
   "dependencies": {
     "archiver": "^7.0.1",
     "ejs": "^3.1.6",
-    "express": "^4.18.2",
+    "express": "^4.19.2",
     "express-easy-zip": "^1.1.5",
     "glob": "^9.3.5",
     "heic-convert": "^2.1.0",
