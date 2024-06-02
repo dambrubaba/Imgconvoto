@@ -17,16 +17,10 @@ const fileFilter = (req, file, cb) => {
         "image/webp",
         "image/heic",
         "image/heif",
+        "application/octet-stream", // Added to handle HEIC files with incorrect MIME type
     ];
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
     const mimetype = mimetypes.includes(file.mimetype);
-    const extname = filetypes.test(
-        path.extname(file.originalname).toLowerCase(),
-    );
-
-    // Log the file's MIME type and extension
-    console.log(`Uploading file: ${file.originalname}`);
-    console.log(`MIME type: ${file.mimetype}`);
-    console.log(`Extension: ${path.extname(file.originalname).toLowerCase()}`);
 
     if (mimetype && extname) {
         return cb(null, true);
@@ -51,11 +45,11 @@ app.get("/", (req, res) => {
 app.post("/convert", upload.single("image"), async (req, res) => {
     const format = req.body.format; // jpeg, png, webp, heic, etc.
     const filePath = req.file.path;
-    const outputFilePath = path.join("/tmp/uploads", `output.${format}`);
+    const outputFilePath = path.join('/tmp/uploads', `output.${format}`);
 
     try {
         const ext = path.extname(req.file.originalname).toLowerCase();
-        if (ext === ".heic" || ext === ".heif") {
+        if (ext === ".heic" || ext === ".heif" || req.file.mimetype === "application/octet-stream") {
             const inputBuffer = fs.readFileSync(filePath);
             const outputBuffer = await heicConvert({
                 buffer: inputBuffer,
