@@ -29,9 +29,9 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
-// Set up multer with file filter
+// Set up multer with memory storage
 const upload = multer({
-    dest: "/tmp/uploads/", // Use the /tmp directory for uploads
+    storage: multer.memoryStorage(),
     fileFilter: fileFilter,
 });
 
@@ -44,36 +44,24 @@ app.get("/", (req, res) => {
 
 app.post("/convert", upload.single("image"), async (req, res) => {
     const format = req.body.format; // jpeg, png, webp, heic, etc.
-    const filePath = req.file.path;
-    const outputFilePath = `uploads/output.${format}`;
+    const outputFilePath = path.join("/tmp", `output.${format}`);
 
     try {
         const ext = path.extname(req.file.originalname).toLowerCase();
         if (ext === ".heic" || ext === ".heif") {
-            const inputBuffer = fs.readFileSync(filePath);
             const outputBuffer = await heicConvert({
-                buffer: inputBuffer,
+                buffer: req.file.buffer,
                 format: format.toUpperCase(), // Converting HEIC to the desired format
             });
             fs.writeFileSync(outputFilePath, outputBuffer);
-        } else if (format === "heic") {
-            // This block seems to be incorrect as it's trying to convert a non-HEIC image to HEIC
-            // You might need to adjust the logic here depending on your requirements
-            const inputBuffer = fs.readFileSync(filePath);
-            const outputBuffer = await heicConvert({
-                buffer: inputBuffer,
-                format: "HEIC", // Converting to HEIC
-            });
-            fs.writeFileSync(outputFilePath, outputBuffer);
         } else {
-            await sharp(filePath).toFormat(format).toFile(outputFilePath);
+            await sharp(req.file.buffer).toFormat(format).toFile(outputFilePath);
         }
 
         res.download(outputFilePath, (err) => {
             if (err) {
                 console.error(err);
             }
-            fs.unlinkSync(filePath); // Delete the uploaded file
             fs.unlinkSync(outputFilePath); // Delete the output file
         });
     } catch (error) {
@@ -86,3 +74,5 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
+
+module.exports = app; // For Vercel deployment
