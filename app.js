@@ -19,9 +19,7 @@ const fileFilter = (req, file, cb) => {
         "image/heif",
     ];
     const mimetype = mimetypes.includes(file.mimetype);
-    const extname = filetypes.test(
-        path.extname(file.originalname).toLowerCase(),
-    );
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
     if (mimetype && extname) {
         return cb(null, true);
     } else {
@@ -29,9 +27,9 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
-// Set up multer with memory storage
+// Set up multer with file filter
 const upload = multer({
-    storage: multer.memoryStorage(),
+    dest: "/tmp/uploads/", // Use the /tmp directory for uploads
     fileFilter: fileFilter,
 });
 
@@ -44,24 +42,27 @@ app.get("/", (req, res) => {
 
 app.post("/convert", upload.single("image"), async (req, res) => {
     const format = req.body.format; // jpeg, png, webp, heic, etc.
-    const outputFilePath = path.join("/tmp", `output.${format}`);
+    const filePath = req.file.path;
+    const outputFilePath = path.join('/tmp/uploads', `output.${format}`);
 
     try {
         const ext = path.extname(req.file.originalname).toLowerCase();
         if (ext === ".heic" || ext === ".heif") {
+            const inputBuffer = fs.readFileSync(filePath);
             const outputBuffer = await heicConvert({
-                buffer: req.file.buffer,
+                buffer: inputBuffer,
                 format: format.toUpperCase(), // Converting HEIC to the desired format
             });
             fs.writeFileSync(outputFilePath, outputBuffer);
         } else {
-            await sharp(req.file.buffer).toFormat(format).toFile(outputFilePath);
+            await sharp(filePath).toFormat(format).toFile(outputFilePath);
         }
 
         res.download(outputFilePath, (err) => {
             if (err) {
                 console.error(err);
             }
+            fs.unlinkSync(filePath); // Delete the uploaded file
             fs.unlinkSync(outputFilePath); // Delete the output file
         });
     } catch (error) {
@@ -74,5 +75,3 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
-
-module.exports = app; // For Vercel deployment
