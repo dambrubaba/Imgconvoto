@@ -15,13 +15,14 @@ const fileFilter = (req, file, cb) => {
         "image/png",
         "image/gif",
         "image/webp",
+        "application/octet-stream", // Handle HEIC files from iPhone
         "image/heic",
         "image/heif",
-        "application/octet-stream", // Added to handle HEIC files with incorrect MIME type
     ];
-    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
     const mimetype = mimetypes.includes(file.mimetype);
-
+    const extname = filetypes.test(
+        path.extname(file.originalname).toLowerCase(),
+    );
     if (mimetype && extname) {
         return cb(null, true);
     } else {
@@ -43,9 +44,9 @@ app.get("/", (req, res) => {
 });
 
 app.post("/convert", upload.single("image"), async (req, res) => {
-    const format = req.body.format; // jpeg, png, webp, heic, etc.
+    const format = req.body.format; // jpeg, png, webp, etc.
     const filePath = req.file.path;
-    const outputFilePath = path.join('/tmp/uploads', `output.${format}`);
+    const outputFilePath = `uploads/output.${format}`;
 
     try {
         const ext = path.extname(req.file.originalname).toLowerCase();

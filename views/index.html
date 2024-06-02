@@ -128,8 +128,14 @@
                 dropArea.querySelector("p").innerText = fileInput.files[0].name;
             });
 
-            document.getElementById("uploadForm").onsubmit = function () {
+            document.getElementById("uploadForm").onsubmit = function (event) {
+                console.log("Form submitted");
                 document.getElementById("loading").style.display = "block";
+                setTimeout(() => {
+                    console.log("Submitting...");
+                    event.target.submit();
+                }, 100); // Adding a small delay
+                return false; // Prevent default submission to check if this solves the issue
             };
         </script>
     </body>
