@@ -4,21 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image Converter</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Roboto', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #f0f0f0;
+            background-color: #121212;
+            color: #ffffff;
             margin: 0;
         }
         .container {
-            background: white;
+            background: #1e1e1e;
             padding: 2em;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
             text-align: center;
         }
         .form-group {
@@ -29,15 +31,16 @@
             margin-bottom: 0.5em;
         }
         #drop-area {
-            border: 2px dashed #ccc;
+            border: 2px dashed #555;
             border-radius: 8px;
             padding: 2em;
             text-align: center;
             cursor: pointer;
             margin-bottom: 1em;
+            color: #888;
         }
         #drop-area.dragging {
-            border-color: #666;
+            border-color: #bbb;
         }
         .btn {
             background-color: #007bff;
@@ -60,15 +63,16 @@
 <body>
     <div class="container">
         <h1>Image Converter</h1>
+        <p>Convert HEIC photos to JPEGs without losing their quality</p>
         <form id="uploadForm" action="/convert" method="post" enctype="multipart/form-data">
             <div class="form-group">
-                <label class="form-label">Upload Image:</label>
+                <label class="form-label">Upload Image (HEIC or JPG):</label>
                 <div id="drop-area">
                     <p>Drag & Drop your image here or <span>browse</span></p>
-                    <input type="file" name="image" id="image" accept="image/jpeg, image/heic, image/heif" required>
+                    <input type="file" name="image" id="image" accept="image/jpeg, image/heic" required>
                 </div>
             </div>
-            <button type="submit" class="btn">Convert</button>
+            <button type="submit" class="btn">Convert to JPEG</button>
             <div id="loading" class="loading">Converting...</div>
         </form>
         <div id="message"></div>
@@ -102,12 +106,9 @@
             dropArea.querySelector('p').innerText = fileInput.files[0].name;
         });
 
-        document.getElementById('uploadForm').addEventListener('submit', (event) => {
+        document.getElementById('uploadForm').onsubmit = function() {
             document.getElementById('loading').style.display = 'block';
-            setTimeout(() => {
-                event.target.submit();
-            }, 100); // Adding a small delay
-        });
+        };
     </script>
 </body>
 </html>

@@ -9,10 +9,12 @@ const app = express();
 
 // File filter for multer
 const fileFilter = (req, file, cb) => {
-    const allowedTypes = ["image/jpeg", "image/heic", "image/heif", "application/octet-stream"];
-    const ext = path.extname(file.originalname).toLowerCase();
-    if (allowedTypes.includes(file.mimetype) || ext === ".jpg") {
-        cb(null, true);
+    const filetypes = /jpg|jpeg|heic/;
+    const mimetypes = ["image/jpeg", "image/heic"];
+    const mimetype = mimetypes.includes(file.mimetype);
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+    if (mimetype && extname) {
+        return cb(null, true);
     } else {
         cb(new Error("Error: Images Only!"));
     }
@@ -33,21 +35,19 @@ app.get("/", (req, res) => {
 
 app.post("/convert", upload.single("image"), async (req, res) => {
     const filePath = req.file.path;
-    const outputFilePath = `uploads/output.jpeg`;
+    const outputFilePath = `/tmp/uploads/output.jpeg`;
 
     try {
         const ext = path.extname(req.file.originalname).toLowerCase();
-        if (ext === ".heic" || ext === ".heif" || req.file.mimetype === "application/octet-stream") {
+        if (ext === ".heic") {
             const inputBuffer = fs.readFileSync(filePath);
             const outputBuffer = await heicConvert({
                 buffer: inputBuffer,
                 format: "JPEG", // Converting HEIC to JPEG
             });
             fs.writeFileSync(outputFilePath, outputBuffer);
-        } else if (ext === ".jpg" || req.file.mimetype === "image/jpeg") {
-            await sharp(filePath).toFormat("jpeg").toFile(outputFilePath);
         } else {
-            throw new Error("Unsupported file format");
+            await sharp(filePath).jpeg().toFile(outputFilePath);
         }
 
         res.download(outputFilePath, (err) => {
