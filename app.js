@@ -9,22 +9,10 @@ const app = express();
 
 // File filter for multer
 const fileFilter = (req, file, cb) => {
-    const filetypes = /jpeg|jpg|png|gif|webp|heic|heif/;
-    const mimetypes = [
-        "image/jpeg",
-        "image/png",
-        "image/gif",
-        "image/webp",
-        "application/octet-stream", // Handle HEIC files from iPhone
-        "image/heic",
-        "image/heif",
-    ];
-    const mimetype = mimetypes.includes(file.mimetype);
-    const extname = filetypes.test(
-        path.extname(file.originalname).toLowerCase(),
-    );
-    if (mimetype && extname) {
-        return cb(null, true);
+    const allowedTypes = ["image/jpeg", "image/heic", "image/heif", "application/octet-stream"];
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (allowedTypes.includes(file.mimetype) || ext === ".jpg") {
+        cb(null, true);
     } else {
         cb(new Error("Error: Images Only!"));
     }
@@ -44,9 +32,8 @@ app.get("/", (req, res) => {
 });
 
 app.post("/convert", upload.single("image"), async (req, res) => {
-    const format = req.body.format; // jpeg, png, webp, etc.
     const filePath = req.file.path;
-    const outputFilePath = `uploads/output.${format}`;
+    const outputFilePath = `uploads/output.jpeg`;
 
     try {
         const ext = path.extname(req.file.originalname).toLowerCase();
@@ -54,11 +41,13 @@ app.post("/convert", upload.single("image"), async (req, res) => {
             const inputBuffer = fs.readFileSync(filePath);
             const outputBuffer = await heicConvert({
                 buffer: inputBuffer,
-                format: format.toUpperCase(), // Converting HEIC to the desired format
+                format: "JPEG", // Converting HEIC to JPEG
             });
             fs.writeFileSync(outputFilePath, outputBuffer);
+        } else if (ext === ".jpg" || req.file.mimetype === "image/jpeg") {
+            await sharp(filePath).toFormat("jpeg").toFile(outputFilePath);
         } else {
-            await sharp(filePath).toFormat(format).toFile(outputFilePath);
+            throw new Error("Unsupported file format");
         }
 
         res.download(outputFilePath, (err) => {
