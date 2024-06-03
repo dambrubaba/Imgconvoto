@@ -12,7 +12,9 @@ const fileFilter = (req, file, cb) => {
     const filetypes = /jpg|jpeg|heic/;
     const mimetypes = ["image/jpeg", "image/heic"];
     const mimetype = mimetypes.includes(file.mimetype);
-    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+    const extname = filetypes.test(
+        path.extname(file.originalname).toLowerCase(),
+    );
     if (mimetype && extname) {
         return cb(null, true);
     } else {
