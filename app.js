@@ -3,18 +3,28 @@ const multer = require("multer");
 const sharp = require("sharp");
 const heicConvert = require("heic-convert");
 const fs = require("fs");
-const os = require("os");
 const path = require("path");
 
 const app = express();
 
+// File filter for multer with logging
 const fileFilter = (req, file, cb) => {
     const filetypes = /jpeg|jpg|heic|heif/;
-    const mimetypes = ["image/jpeg", "image/heic", "image/heif"];
+    const mimetypes = [
+        "image/jpeg",
+        "image/heic",
+        "image/heif",
+        "application/octet-stream",
+    ];
     const mimetype = mimetypes.includes(file.mimetype);
     const extname = filetypes.test(
         path.extname(file.originalname).toLowerCase(),
     );
+
+    console.log(
+        `File filter - MIME type: ${file.mimetype}, Extension: ${path.extname(file.originalname).toLowerCase()}`,
+    );
+
     if (mimetype && extname) {
         return cb(null, true);
     } else {
@@ -22,8 +32,9 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
+// Set up multer with file filter
 const upload = multer({
-    dest: os.tmpdir(), // Use the OS temporary directory for uploads
+    dest: "/tmp/uploads/", // Use the /tmp directory for uploads
     fileFilter: fileFilter,
 });
 
@@ -35,9 +46,9 @@ app.get("/", (req, res) => {
 });
 
 app.post("/convert", upload.single("image"), async (req, res) => {
-    const format = "jpeg"; // Only convert to JPEG
+    const format = "jpeg"; // Fixed format to jpeg
     const filePath = req.file.path;
-    const outputFilePath = path.join(os.tmpdir(), `output.${format}`);
+    const outputFilePath = `/tmp/uploads/output.${format}`;
 
     try {
         const ext = path.extname(req.file.originalname).toLowerCase();
@@ -45,11 +56,11 @@ app.post("/convert", upload.single("image"), async (req, res) => {
             const inputBuffer = fs.readFileSync(filePath);
             const outputBuffer = await heicConvert({
                 buffer: inputBuffer,
-                format: format.toUpperCase(), // Converting HEIC/HEIF to JPEG
+                format: "JPEG", // Converting HEIC/HEIF to JPEG
             });
             fs.writeFileSync(outputFilePath, outputBuffer);
         } else {
-            await sharp(filePath).toFormat(format).toFile(outputFilePath);
+            await sharp(filePath).jpeg().toFile(outputFilePath);
         }
 
         res.download(outputFilePath, (err) => {
