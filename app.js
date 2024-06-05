@@ -7,6 +7,20 @@ const path = require("path");
 
 const app = express();
 
+// Ensure the /tmp/uploads and /uploads directories exist
+const ensureDirectories = () => {
+    const tmpUploadsDir = "/tmp/uploads";
+    const uploadsDir = "uploads";
+    if (!fs.existsSync(tmpUploadsDir)) {
+        fs.mkdirSync(tmpUploadsDir, { recursive: true });
+    }
+    if (!fs.existsSync(uploadsDir)) {
+        fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+};
+
+ensureDirectories();
+
 // File filter for multer
 const fileFilter = (req, file, cb) => {
     const filetypes = /jpeg|jpg|heic|heif/;
@@ -46,7 +60,7 @@ app.post("/convert", upload.single("image"), async (req, res) => {
             const inputBuffer = fs.readFileSync(filePath);
             const outputBuffer = await heicConvert({
                 buffer: inputBuffer,
-                format: "JPEG", // Converting HEIC to JPEG
+                format: "JPEG", // Converting HEIC/HEIF to JPEG
             });
             fs.writeFileSync(outputFilePath, outputBuffer);
         } else if (ext === ".jpg" || ext === ".jpeg") {
@@ -57,13 +71,13 @@ app.post("/convert", upload.single("image"), async (req, res) => {
 
         res.download(outputFilePath, (err) => {
             if (err) {
-                console.error(err);
+                console.error("Error during file download:", err);
             }
             fs.unlinkSync(filePath); // Delete the uploaded file
             fs.unlinkSync(outputFilePath); // Delete the output file
         });
     } catch (error) {
-        console.error(error);
+        console.error("Error processing image:", error);
         res.status(500).send("Error processing image");
     }
 });

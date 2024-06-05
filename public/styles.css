@@ -4,99 +4,86 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
+  background-color: #240750;
   margin: 0;
-  background: linear-gradient(to right, #4facfe, #00f2fe);
+  color: #57A6A1;
+  background-image: url('https://www.transparenttextures.com/patterns/arabesque.png'); /* Background pattern */
 }
 
 .container {
-  background: white;
-  padding: 30px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  background: #344C64;
+  padding: 2em;
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
   text-align: center;
-  max-width: 400px;
-  width: 100%;
+  width: 90%;
+  max-width: 500px;
 }
 
 h1 {
-  margin-bottom: 20px;
-  font-size: 24px;
-  color: #333;
+  margin-bottom: 0.5em;
+  font-weight: 700;
+  color: #57A6A1;
+}
+
+.description {
+  margin-bottom: 1em;
+  font-size: 1.1em;
+  color: #57A6A1;
 }
 
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 1em;
 }
 
 .form-label {
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 0.5em;
   font-weight: 500;
-}
-
-select {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
+  color: #57A6A1;
 }
 
 #drop-area {
-  border: 2px dashed #4facfe;
-  padding: 30px;
-  border-radius: 10px;
+  border: 2px dashed #577B8D;
+  border-radius: 8px;
+  padding: 2em;
+  text-align: center;
   cursor: pointer;
-  transition: background-color 0.3s;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  height: 150px;
+  margin-bottom: 1em;
+  transition: border-color 0.3s;
 }
 
 #drop-area.dragging {
-  background-color: #e6f7ff;
+  border-color: #57A6A1;
 }
 
 #drop-area p {
   margin: 0;
-  font-size: 16px;
-  color: #888;
+  color: #577B8D;
 }
 
 #drop-area span {
-  color: #4facfe;
-  font-weight: 500;
+  color: #57A6A1;
   text-decoration: underline;
-  cursor: pointer;
-}
-
-input[type="file"] {
-  display: none;
 }
 
 .btn {
-  background-color: #4facfe;
+  background-color: #57A6A1;
   color: white;
+  padding: 0.5em 1em;
   border: none;
-  padding: 10px 20px;
+  border-radius: 4px;
   cursor: pointer;
-  border-radius: 5px;
   transition: background-color 0.3s;
 }
 
 .btn:hover {
-  background-color: #00f2fe;
+  background-color: #577B8D;
 }
 
 .loading {
-  margin-top: 10px;
-  font-size: 16px;
-  color: #888;
   display: none;
-}
-
-#message {
-  margin-top: 20px;
-  font-size: 18px;
+  margin-top: 1em;
+  text-align: center;
+  color: #57A6A1;
 }
