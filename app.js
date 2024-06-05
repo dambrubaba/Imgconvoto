@@ -1,21 +1,16 @@
 const express = require("express");
 const multer = require("multer");
 const sharp = require("sharp");
-const heicConvert = require("heic-convert");
 const fs = require("fs");
 const path = require("path");
 
 const app = express();
 
-// Ensure the /tmp/uploads and /uploads directories exist
+// Ensure uploads directory exists
 const ensureDirectories = () => {
-    const tmpUploadsDir = "/tmp/uploads";
-    const uploadsDir = "uploads";
-    if (!fs.existsSync(tmpUploadsDir)) {
-        fs.mkdirSync(tmpUploadsDir, { recursive: true });
-    }
-    if (!fs.existsSync(uploadsDir)) {
-        fs.mkdirSync(uploadsDir, { recursive: true });
+    const uploadDir = path.join(__dirname, "uploads");
+    if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir);
     }
 };
 
@@ -50,7 +45,7 @@ app.get("/", (req, res) => {
 });
 
 app.post("/convert", upload.single("image"), async (req, res) => {
-    const format = "jpeg"; // Always convert to jpeg
+    const format = "jpeg"; // Convert only to jpeg
     const filePath = req.file.path;
     const outputFilePath = `uploads/output.${format}`;
 
@@ -58,26 +53,21 @@ app.post("/convert", upload.single("image"), async (req, res) => {
         const ext = path.extname(req.file.originalname).toLowerCase();
         if (ext === ".heic" || ext === ".heif") {
             const inputBuffer = fs.readFileSync(filePath);
-            const outputBuffer = await heicConvert({
-                buffer: inputBuffer,
-                format: "JPEG", // Converting HEIC/HEIF to JPEG
-            });
+            const outputBuffer = await sharp(inputBuffer).jpeg().toBuffer();
             fs.writeFileSync(outputFilePath, outputBuffer);
-        } else if (ext === ".jpg" || ext === ".jpeg") {
+        } else if (ext === ".jpeg" || ext === ".jpg") {
             await sharp(filePath).toFormat(format).toFile(outputFilePath);
-        } else {
-            throw new Error("Unsupported file type.");
         }
 
         res.download(outputFilePath, (err) => {
             if (err) {
-                console.error("Error during file download:", err);
+                console.error(err);
             }
             fs.unlinkSync(filePath); // Delete the uploaded file
             fs.unlinkSync(outputFilePath); // Delete the output file
         });
     } catch (error) {
-        console.error("Error processing image:", error);
+        console.error(error);
         res.status(500).send("Error processing image");
     }
 });
